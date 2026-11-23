@@ -1,0 +1,1002 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KamusKu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    --bg: #EAF0F9;
+    --surface: #FFFFFF;
+    --card: #F1F5FC;
+    --card-hover: #E6EDFA;
+    --input: #F8FAFE;
+    --border: #CFDBEE;
+    --text: #13233C;
+    --text-2: #46597A;
+    --muted: #6B7F9E;
+    --accent: #2563EB;
+    --accent-hover: #1D4FC4;
+    --accent-soft: #DCE7FD;
+    --on-accent: #FFFFFF;
+    --green: #15803D;
+    --red: #DC2626;
+    --teal: #0F766E;
+    --amber: #B45309;
+    --hl: #FCD34D;
+    --hl-fg: #13233C;
+    --font: "Poppins", system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #13223A; --surface: #1B2E4B; --card: #243B5E; --card-hover: #2C4872; --input: #101D33;
+      --border: #2F4A73; --text: #F1F6FC; --text-2: #9FB4D0; --muted: #6D85A8;
+      --accent: #2F7CF6; --accent-hover: #1D63D8; --accent-soft: #1C355E; --on-accent: #FFFFFF;
+      --green: #22C55E; --red: #F25555; --teal: #2DD4BF; --amber: #FBBF24;
+      --hl: #FBBF24; --hl-fg: #13233A;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #13223A; --surface: #1B2E4B; --card: #243B5E; --card-hover: #2C4872; --input: #101D33;
+    --border: #2F4A73; --text: #F1F6FC; --text-2: #9FB4D0; --muted: #6D85A8;
+    --accent: #2F7CF6; --accent-hover: #1D63D8; --accent-soft: #1C355E; --on-accent: #FFFFFF;
+    --green: #22C55E; --red: #F25555; --teal: #2DD4BF; --amber: #FBBF24;
+    --hl: #FBBF24; --hl-fg: #13233A;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg); color: var(--text);
+    font-family: var(--font); font-size: 14px; line-height: 1.45;
+    padding-block: 16px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  button, input, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .app { max-width: 1180px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+
+  .btn {
+    border: 1px solid var(--border); background: var(--card); color: var(--text);
+    border-radius: 12px; padding: 9px 16px; font-weight: 600; font-size: 13px;
+    transition: background .15s, border-color .15s;
+  }
+  .btn:hover { background: var(--card-hover); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  .btn.primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+  .btn.danger { background: var(--red); border-color: var(--red); color: #fff; }
+  .btn.danger:hover { filter: brightness(.92); }
+  .btn:disabled { opacity: .45; cursor: not-allowed; }
+  .btn.sm { padding: 6px 12px; font-size: 12px; border-radius: 10px; }
+
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; }
+
+  .topbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; padding: 14px 18px; }
+  .brand { display: flex; align-items: baseline; gap: 8px; }
+  .brand h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -.01em; }
+  .brand .tag { color: var(--teal); font-size: 11px; font-weight: 700; letter-spacing: .04em; }
+  .stats { background: var(--card); border: 1px solid var(--border); border-radius: 999px; padding: 6px 14px; font-size: 12px; font-weight: 600; color: var(--text-2); }
+  .sync { border: 1px solid var(--border); border-radius: 999px; padding: 6px 12px; font-size: 11px; font-weight: 700; color: var(--muted); }
+  .sync[data-mode="ok"] { color: var(--green); }
+  .sync[data-mode="syncing"] { color: var(--amber); }
+  .sync[data-mode="error"] { color: var(--red); }
+  .user-chip { display: inline-flex; align-items: center; gap: 8px; background: var(--card); border: 1px solid var(--border); border-radius: 999px; padding: 4px 12px 4px 6px; font-size: 12px; font-weight: 600; color: var(--text); }
+  .user-chip img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; }
+  .actions { margin-left: auto; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+  .notice { background: var(--accent-soft); border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; color: var(--text-2); font-size: 12px; }
+
+  .vocab { --panel-h: clamp(440px, 74vh, 700px); display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 14px; align-items: start; }
+  .list-panel, .detail-panel { height: var(--panel-h); display: flex; flex-direction: column; min-height: 0; }
+  .list-panel { padding: 14px; gap: 10px; }
+  .search {
+    width: 100%; background: var(--input); border: 1px solid var(--border); border-radius: 12px;
+    padding: 10px 14px; font-size: 13px;
+  }
+  .search::placeholder { color: var(--muted); }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
+  .seg { display: inline-flex; background: var(--input); border: 1px solid var(--border); border-radius: 10px; padding: 3px; gap: 2px; }
+  .seg button { border: 0; background: transparent; border-radius: 8px; padding: 5px 12px; font-size: 12px; font-weight: 600; color: var(--text-2); }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+  .words {
+    flex: 1; min-height: 0; overflow-y: auto; background: var(--input); border: 1px solid var(--border);
+    border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 8px;
+  }
+  .item {
+    text-align: left; width: 100%; background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 10px 14px; display: block;
+  }
+  .item:hover { background: var(--card-hover); }
+  .item.sel { background: var(--accent-soft); border: 1.5px solid var(--accent); padding: 9.5px 13.5px; }
+  .item .w { font-weight: 600; font-size: 14px; overflow-wrap: anywhere; }
+  .item .w .dash { color: var(--muted); margin: 0 6px; font-weight: 400; }
+  .item .sub { font-size: 12px; color: var(--text-2); margin-top: 3px; overflow-wrap: anywhere; }
+  .st { font-weight: 700; }
+  .st.ok { color: var(--green); }
+  .st.no { color: var(--red); }
+  .sep { color: var(--muted); margin: 0 6px; }
+  .empty { color: var(--muted); text-align: center; padding: 28px 10px; font-size: 13px; }
+
+  .detail-panel { padding: 14px; gap: 12px; }
+  .hero { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px; height: 112px; flex: none; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; }
+  .hero h2 { margin: 0; font-size: 22px; font-weight: 700; line-height: 1.2; overflow-wrap: anywhere; max-height: 3.6em; overflow: hidden; }
+  .hero .badge { font-size: 12px; font-weight: 700; }
+  .info { flex: 1; min-height: 0; overflow-y: auto; background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px; }
+  .info .lbl { font-size: 10px; font-weight: 700; letter-spacing: .08em; color: var(--muted); margin: 10px 0 2px; }
+  .info .lbl:first-child { margin-top: 0; color: var(--teal); }
+  .info .val { margin: 0; overflow-wrap: anywhere; color: var(--text-2); }
+  .info .val.big { font-size: 15px; font-weight: 600; color: var(--text); }
+  .detail-actions { display: flex; flex-direction: column; gap: 8px; flex: none; }
+  .close-sheet { display: none; }
+
+  .notes { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 14px; padding: 18px; min-height: 520px; }
+  .notes-head { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px 14px; justify-content: space-between; align-items: flex-end; }
+  .notes-head h2 { margin: 0; font-size: 20px; font-weight: 700; }
+  .notes-head p { margin: 2px 0 0; color: var(--text-2); font-size: 12px; }
+  .save-status { font-size: 12px; font-weight: 700; color: var(--green); }
+  .save-status.busy { color: var(--amber); }
+  .note-side { display: flex; flex-direction: column; gap: 10px; min-height: 0; }
+  .note-list { background: var(--input); border: 1px solid var(--border); border-radius: 12px; padding: 8px; display: flex; flex-direction: column; gap: 6px; overflow-y: auto; max-height: 560px; }
+  .note-card { text-align: left; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px; min-width: 0; }
+  .note-card:hover { background: var(--card-hover); }
+  .note-card.sel { background: var(--accent-soft); border: 1.5px solid var(--accent); padding: 7.5px 11.5px; }
+  .note-card b { display: block; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .note-card span { display: block; font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .editor-wrap { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .note-title { width: 100%; background: var(--input); border: 1px solid var(--border); border-radius: 10px; padding: 9px 14px; font-size: 16px; font-weight: 700; }
+  .toolbar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .tb { min-width: 36px; height: 30px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); font-size: 12px; font-weight: 600; }
+  .tb:hover { background: var(--card-hover); }
+  .tb.on { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  .tb.t-h { color: var(--teal); }
+  .tb.t-hl { color: var(--amber); }
+  .tb.on.t-h, .tb.on.t-hl { color: var(--on-accent); }
+  .hint { color: var(--muted); font-size: 11px; margin-left: 6px; }
+  .editor {
+    min-height: 360px; flex: 1; background: var(--input); border: 1px solid var(--border); border-radius: 12px;
+    padding: 14px 16px; font-size: 14px; line-height: 1.6; overflow-wrap: anywhere; overflow-y: auto; max-height: 62vh;
+  }
+  .editor:focus { outline: 2px solid var(--accent); outline-offset: 0; }
+  .editor h3 { font-size: 20px; margin: 8px 0 4px; color: var(--teal); line-height: 1.25; }
+  .editor ul, .editor ol { margin: 4px 0; padding-left: 24px; }
+  .editor [style*="251, 191, 36"] { color: var(--hl-fg); border-radius: 3px; }
+  .editor mark { background: var(--hl); color: var(--hl-fg); border-radius: 3px; padding: 0 2px; }
+  .note-foot { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; }
+  .note-foot .right { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  .overlay { position: fixed; inset: 0; background: rgba(5, 12, 25, .62); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 50; overflow-y: auto; }
+  .dialog { width: 100%; max-width: 560px; max-height: calc(100vh - 32px); overflow-y: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; box-shadow: 0 20px 60px rgba(0, 0, 0, .35); }
+  .dialog h3 { margin: 0 0 2px; font-size: 19px; font-weight: 700; }
+  .dialog .sub { margin: 0 0 14px; color: var(--text-2); font-size: 12px; }
+  .field { display: block; margin-bottom: 12px; }
+  .field > span { display: block; font-size: 11px; font-weight: 700; letter-spacing: .04em; color: var(--text-2); margin-bottom: 4px; text-transform: uppercase; }
+  .field input[type="text"], .field textarea {
+    width: 100%; background: var(--input); border: 1px solid var(--border); border-radius: 10px; padding: 9px 12px; font-size: 14px; resize: vertical;
+  }
+  .chars { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: -4px 0 12px; }
+  .chars small { color: var(--muted); font-size: 11px; margin-right: 4px; }
+  .chars button { min-width: 34px; height: 28px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); font-weight: 700; }
+  .chars button:hover { background: var(--card-hover); }
+  .switch { display: flex; align-items: center; gap: 10px; margin: 4px 0 6px; font-size: 13px; cursor: pointer; }
+  .switch input { width: 18px; height: 18px; accent-color: var(--accent); }
+  .dlg-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; flex-wrap: wrap; }
+  .err { color: var(--red); font-size: 12px; font-weight: 600; margin: 0 0 8px; min-height: 0; }
+  .dialog textarea.mono { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; min-height: 120px; }
+  .dialog hr { border: 0; border-top: 1px solid var(--border); margin: 14px 0; }
+
+  @media (max-width: 860px) {
+    .vocab { grid-template-columns: minmax(0, 1fr); }
+    .list-panel { height: calc(100vh - 190px); min-height: 380px; }
+    .detail-panel {
+      display: none; position: fixed; inset: auto 0 0 0; height: min(78vh, 600px); z-index: 40;
+      border-radius: 18px 18px 0 0; box-shadow: 0 -12px 40px rgba(0, 0, 0, .4);
+      padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+    }
+    body.detail-open .detail-panel { display: flex; }
+    .close-sheet { display: inline-flex; align-self: flex-end; }
+    .notes { grid-template-columns: minmax(0, 1fr); padding: 14px; }
+    .note-list { flex-direction: row; overflow-x: auto; overflow-y: hidden; max-height: none; }
+    .note-card { flex: 0 0 170px; }
+    .editor { max-height: none; min-height: 300px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="panel topbar">
+    <div class="brand"><h1>KamusKu</h1><span class="tag">TR • ID</span></div>
+    <div class="stats" id="stats" aria-live="polite"></div>
+    <div class="sync" id="syncPill" data-mode="local" role="status">Hanya di perangkat ini</div>
+    <div class="user-chip" id="userChip" hidden>
+      <img id="userAvatar" alt="" referrerpolicy="no-referrer">
+      <span id="userName"></span>
+    </div>
+    <div class="actions">
+      <button class="btn" id="btnGoogleAuth" type="button">Masuk dengan Google</button>
+      <button class="btn" id="btnBackup" type="button">Cadangan</button>
+      <button class="btn" id="btnView" type="button">Catatan</button>
+      <button class="btn primary" id="btnAdd" type="button">+ Tambah Kata</button>
+    </div>
+  </header>
+
+  <div class="notice" id="storageNotice" hidden>Penyimpanan browser tidak tersedia, jadi data akan hilang saat halaman ditutup. Pakai tombol Cadangan untuk menyimpan salinan.</div>
+
+  <main class="vocab" id="viewVocab">
+    <section class="panel list-panel" aria-label="Daftar kata">
+      <input class="search" id="search" type="search" placeholder="Cari kata Turki, arti, contoh, atau catatan..." autocomplete="off">
+      <div class="controls">
+        <div class="seg" id="filters" role="group" aria-label="Filter hafalan">
+          <button type="button" data-f="all" aria-pressed="true">Semua</button>
+          <button type="button" data-f="no" aria-pressed="false">Belum Hafal</button>
+          <button type="button" data-f="ok" aria-pressed="false">Sudah Hafal</button>
+        </div>
+        <button class="btn sm" id="btnHide" type="button">Sembunyikan Arti</button>
+      </div>
+      <div class="words" id="words"></div>
+    </section>
+
+    <aside class="panel detail-panel" id="detail" aria-label="Detail kata">
+      <button class="btn sm close-sheet" id="btnCloseSheet" type="button">Tutup</button>
+      <div class="hero"><h2 id="dWord">-</h2><div class="badge" id="dBadge"></div></div>
+      <div class="info">
+        <div class="lbl">ARTI</div><p class="val big" id="dMeaning">-</p>
+        <div class="lbl">CONTOH KALIMAT</div><p class="val" id="dExample">-</p>
+        <div class="lbl">CATATAN KATA</div><p class="val" id="dNote">-</p>
+      </div>
+      <div class="detail-actions">
+        <button class="btn primary" id="btnToggle" type="button">Tandai Hafal / Belum</button>
+        <button class="btn" id="btnEdit" type="button">Edit Kata & Catatan</button>
+        <button class="btn danger" id="btnDelete" type="button">Hapus Kata</button>
+      </div>
+    </aside>
+  </main>
+
+  <main class="panel notes" id="viewNotes" hidden>
+    <div class="notes-head">
+      <div><h2>Catatan Belajar</h2><p>Buat banyak catatan: tata bahasa, rumus imbuhan, atau apa pun yang ingin kamu ingat.</p></div>
+      <div class="save-status" id="saveStatus" aria-live="polite">Tersimpan otomatis</div>
+    </div>
+    <div class="note-side">
+      <button class="btn primary" id="btnNewNote" type="button">+ Catatan Baru</button>
+      <div class="note-list" id="noteList"></div>
+    </div>
+    <div class="editor-wrap">
+      <input class="note-title" id="noteTitle" type="text" placeholder="Judul catatan" autocomplete="off">
+      <div class="toolbar" id="toolbar" role="toolbar" aria-label="Format teks">
+        <button class="tb" type="button" data-c="bold" title="Tebal (Ctrl+B)"><b>B</b></button>
+        <button class="tb" type="button" data-c="italic" title="Miring (Ctrl+I)"><i>I</i></button>
+        <button class="tb" type="button" data-c="underline" title="Garis bawah (Ctrl+U)"><u>U</u></button>
+        <button class="tb t-h" type="button" data-c="heading">Judul</button>
+        <button class="tb t-hl" type="button" data-c="highlight">Sorot</button>
+        <button class="tb" type="button" data-c="list">• Daftar</button>
+        <button class="tb" type="button" data-c="clear">Bersihkan</button>
+        <span class="hint">Blok teks lalu pilih format</span>
+      </div>
+      <div class="editor" id="editor" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Isi catatan" spellcheck="false"></div>
+    </div>
+    <div class="note-foot">
+      <button class="btn" id="btnBack" type="button">← Kembali ke Kosakata</button>
+      <div class="right">
+        <button class="btn danger" id="btnDelNote" type="button">Hapus Catatan</button>
+        <button class="btn primary" id="btnSaveNote" type="button">Simpan Sekarang</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="modalRoot"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import {
+    getAuth,
+    GoogleAuthProvider,
+    signInWithPopup,
+    signOut,
+    onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+  import {
+    getFirestore,
+    collection,
+    doc,
+    getDoc,
+    getDocs,
+    setDoc,
+    deleteDoc,
+    onSnapshot
+  } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+  const FIREBASE_CONFIG = {
+    apiKey: "AIzaSyBChGXzh1GApkEwFJV6fOQS_zr40ncqRhY",
+    authDomain: "kamusku-b13dd.firebaseapp.com",
+    projectId: "kamusku-b13dd",
+    storageBucket: "kamusku-b13dd.firebasestorage.app",
+    messagingSenderId: "787946903304",
+    appId: "1:787946903304:web:60153a13652539bd027ebd"
+  };
+
+  const $ = (s, r = document) => r.querySelector(s);
+  const LS_KEY = "kamusku.web.v1";
+  const TR = ["ç", "ğ", "ı", "İ", "ö", "ş", "ü"];
+
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  const now = () => {
+    const d = new Date(), p = n => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+  };
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&", "<": "<", ">": ">", '"': """, "'": "'" }[c]));
+  const short = (s, n) => { s = (s || "").trim(); return s.length > n ? s.slice(0, n - 1).trimEnd() + "…" : s; };
+
+  let memStore = null, storageOk = true;
+  const store = {
+    read() { try { return localStorage.getItem(LS_KEY); } catch (e) { return memStore; } },
+    write(v) {
+      try { localStorage.setItem(LS_KEY, v); storageOk = true; }
+      catch (e) { memStore = v; storageOk = false; }
+      $("#storageNotice").hidden = storageOk;
+    }
+  };
+
+  const OK_TAGS = new Set(["B", "STRONG", "I", "EM", "U", "H3", "MARK", "UL", "OL", "LI", "DIV", "P", "BR", "SPAN"]);
+  const DROP_TAGS = new Set(["SCRIPT", "STYLE", "IFRAME", "OBJECT", "EMBED", "TEMPLATE", "LINK", "META", "SVG", "MATH"]);
+  function sanitize(html) {
+    const doc = new DOMParser().parseFromString(String(html || ""), "text/html");
+    (function walk(node) {
+      for (const ch of [...node.childNodes]) {
+        if (ch.nodeType === 3) continue;
+        if (ch.nodeType !== 1) { ch.remove(); continue; }
+        if (DROP_TAGS.has(ch.tagName)) { ch.remove(); continue; }
+        walk(ch);
+        if (OK_TAGS.has(ch.tagName)) {
+          const hl = ["SPAN", "B", "STRONG", "I", "EM", "U"].includes(ch.tagName) && ch.style && ch.style.backgroundColor.replace(/\s+/g, "") === "rgb(251,191,36)";
+          for (const a of [...ch.attributes]) ch.removeAttribute(a.name);
+          if (hl) ch.setAttribute("style", "background-color: rgb(251, 191, 36)");
+          else if (ch.tagName === "SPAN") ch.replaceWith(...ch.childNodes);
+        } else ch.replaceWith(...ch.childNodes);
+      }
+    })(doc.body);
+    return doc.body.innerHTML;
+  }
+  const textToHtml = t => String(t || "").split("\n").map(l => "<div>" + (l ? esc(l) : "<br>") + "</div>").join("");
+  function htmlToText(html) {
+    const t = String(html || "").replace(/<\/(div|p|li|h3)>|<br\s*\/?>/gi, "\n").replace(/<[^>]+>/g, "");
+    const ta = document.createElement("textarea"); ta.innerHTML = t; return ta.value.replace(/\n{3,}/g, "\n\n").trim();
+  }
+
+  const SEED_VOCAB = [
+    { id: "seed-1", word: "Merhaba", meaning: "Halo / Salam", example: "Merhaba! Bugün nasılsın?", note: "Salam umum di segala waktu; bisa dipakai ke teman maupun orang baru.", learned: true },
+    { id: "seed-2", word: "Teşekkür ederim", meaning: "Terima kasih", example: "Yardımın için çok teşekkür ederim.", note: "Bentuk sopan; lebih santai bisa pakai 'Teşekkürler'.", learned: true },
+    { id: "seed-3", word: "Anlamak", meaning: "Memahami / Mengerti", example: "Türkçeyi yavaş yavaş anlıyorum.", note: "Kata kerja dasar (anla-); bentuk kala sekarang orang ke-1 tunggal: anlıyorum.", learned: false },
+    { id: "seed-4", word: "Kitap", meaning: "Buku", example: "Masada yeni bir kitap var.", note: "Masada (di meja) memakai akhiran lokatif -da.", learned: false }
+  ];
+  const SEED_NOTE_HTML = "<h3>Catatan Belajar Bahasa Turki</h3><ul><li>Huruf vokal: a, e, ı, i, o, ö, u, ü</li><li>Harmoni vokal menentukan pilihan imbuhan (-lar/-ler, -da/-de/-ta/-te, dll.)</li></ul>";
+
+  function normVocab(v) {
+    return {
+      id: String(v.id || uid()),
+      word: String(v.word || "").trim(),
+      meaning: String(v.meaning || "").trim(),
+      example: String(v.example || "-"),
+      note: String(v.note || "-"),
+      learned: !!v.learned,
+      created_at: v.created_at || now(),
+      u: Number(v.u) || 0
+    };
+  }
+  function normNote(n) {
+    return {
+      id: String(n.id || uid()),
+      title: String(n.title || "Tanpa judul"),
+      html: n.html != null ? sanitize(n.html) : textToHtml(n.content || ""),
+      updated_at: n.updated_at || now(),
+      u: Number(n.u) || 0,
+      c: Number(n.c) || Date.parse(String(n.updated_at || "").replace(" ", "T")) || Date.now()
+    };
+  }
+  function normalize(raw) {
+    let vocab = [], notes = [];
+    if (Array.isArray(raw)) vocab = raw;
+    else if (raw && typeof raw === "object") {
+      vocab = Array.isArray(raw.vocab) ? raw.vocab : [];
+      if (Array.isArray(raw.notes) && raw.notes.length) notes = raw.notes;
+      else if (typeof raw.general_note === "string") notes = [{ title: "Catatan Belajar", content: raw.general_note }];
+    } else throw new Error("format");
+    vocab = vocab.map(normVocab).filter(v => v.word && v.meaning);
+    notes = notes.map(normNote);
+    return { vocab, notes };
+  }
+
+  let state;
+  function load() {
+    try {
+      const s = store.read();
+      if (s) {
+        const d = normalize(JSON.parse(s));
+        if (!d.notes.length) d.notes = [normNote({ title: "Catatan Belajar", html: SEED_NOTE_HTML })];
+        return d;
+      }
+    } catch (e) { /* mulai dari contoh */ }
+    return { vocab: SEED_VOCAB.map(normVocab), notes: [normNote({ id: "note-1", title: "Catatan Belajar", html: SEED_NOTE_HTML })] };
+  }
+  const exportData = () => ({
+    vocab: state.vocab,
+    notes: state.notes.map(n => ({ id: n.id, title: n.title, html: n.html, content: htmlToText(n.html), tags: [], updated_at: n.updated_at }))
+  });
+  const persist = () => store.write(JSON.stringify(exportData()));
+
+  const ui = { sel: null, filter: "all", q: "", hide: false, noteId: null, view: "vocab", dirty: false, saveTimer: 0 };
+
+  function openModal(build) {
+    const root = $("#modalRoot");
+    const ov = document.createElement("div"); ov.className = "overlay";
+    const dlg = document.createElement("div"); dlg.className = "dialog"; dlg.setAttribute("role", "dialog"); dlg.setAttribute("aria-modal", "true");
+    ov.appendChild(dlg); root.appendChild(ov);
+    const close = () => { ov.remove(); document.removeEventListener("keydown", onKey); };
+    const onKey = e => { if (e.key === "Escape") close(); };
+    document.addEventListener("keydown", onKey);
+    ov.addEventListener("mousedown", e => { if (e.target === ov) close(); });
+    build(dlg, close);
+    const first = dlg.querySelector("input[type=text], textarea, button"); if (first) first.focus();
+    return close;
+  }
+  function confirmBox(title, text, okLabel) {
+    return new Promise(res => {
+      openModal((d, close) => {
+        d.innerHTML = `<h3>${esc(title)}</h3><p class="sub">${esc(text)}</p><div class="dlg-actions"><button class="btn" data-x="no" type="button">Batal</button><button class="btn danger" data-x="ok" type="button">${esc(okLabel)}</button></div>`;
+        d.querySelector('[data-x="no"]').onclick = () => { close(); res(false); };
+        d.querySelector('[data-x="ok"]').onclick = () => { close(); res(true); };
+      });
+    });
+  }
+
+  const filtered = () => {
+    const q = ui.q.trim().toLowerCase();
+    return state.vocab.filter(v => {
+      if (ui.filter === "ok" && !v.learned) return false;
+      if (ui.filter === "no" && v.learned) return false;
+      return !q || `${v.word} ${v.meaning} ${v.example} ${v.note}`.toLowerCase().includes(q);
+    });
+  };
+  function renderStats() {
+    $("#stats").textContent = `Total: ${state.vocab.length} kata  •  Hafal: ${state.vocab.filter(v => v.learned).length}`;
+  }
+  function itemInner(v) {
+    const hasNote = v.note && v.note !== "-";
+    return `<div class="w">${esc(v.word)}<span class="dash">—</span>${ui.hide ? "••••••" : esc(v.meaning)}</div>
+      <div class="sub"><span class="st ${v.learned ? "ok" : "no"}">${v.learned ? "✓ Hafal" : "• Belum"}</span>${hasNote ? " • Catatan" : ""}<span class="sep">|</span>${esc(v.example)}</div>`;
+  }
+  function renderList() {
+    const box = $("#words"), items = filtered();
+    if (!items.length) { box.innerHTML = '<div class="empty">Belum ada kosakata yang cocok.</div>'; renderStats(); return; }
+    box.innerHTML = items.map(v => `<div class="item${v.id === ui.sel ? " sel" : ""}" role="button" tabindex="0" data-id="${esc(v.id)}">${itemInner(v)}</div>`).join("");
+    renderStats();
+  }
+  const current = () => state.vocab.find(v => v.id === ui.sel) || null;
+  function renderDetail() {
+    const v = current();
+    if (!v) { $("#dWord").textContent = "Kosong"; $("#dBadge").textContent = ""; $("#dMeaning").textContent = "-"; $("#dExample").textContent = "-"; $("#dNote").textContent = "-"; return; }
+    $("#dWord").textContent = v.word;
+    const b = $("#dBadge"); b.textContent = v.learned ? "✓ Sudah Hafal" : "• Belum Hafal"; b.style.color = v.learned ? "var(--green)" : "var(--red)";
+    $("#dMeaning").textContent = ui.hide ? "Tersembunyi (klik Tampilkan Arti untuk melihat)" : v.meaning;
+    $("#dExample").textContent = v.example || "-";
+    $("#dNote").textContent = v.note || "-";
+  }
+  const isNarrow = () => matchMedia("(max-width: 860px)").matches;
+  function selectWord(id) {
+    const old = ui.sel; ui.sel = id;
+    const box = $("#words");
+    if (old) { const o = box.querySelector(`[data-id="${CSS.escape(old)}"]`); if (o) o.classList.remove("sel"); }
+    const n = box.querySelector(`[data-id="${CSS.escape(id)}"]`); if (n) n.classList.add("sel");
+    renderDetail();
+    if (isNarrow()) document.body.classList.add("detail-open");
+  }
+  $("#words").addEventListener("click", e => { const it = e.target.closest(".item"); if (it) selectWord(it.dataset.id); });
+  $("#words").addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && e.target.classList.contains("item")) { e.preventDefault(); selectWord(e.target.dataset.id); } });
+  $("#search").addEventListener("input", e => { ui.q = e.target.value; renderList(); });
+  $("#filters").addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    ui.filter = b.dataset.f;
+    [...$("#filters").children].forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+    renderList();
+  });
+  $("#btnHide").addEventListener("click", () => {
+    ui.hide = !ui.hide; $("#btnHide").textContent = ui.hide ? "Tampilkan Arti" : "Sembunyikan Arti"; renderList(); renderDetail();
+  });
+  $("#btnCloseSheet").addEventListener("click", () => document.body.classList.remove("detail-open"));
+  $("#btnToggle").addEventListener("click", () => {
+    const v = current(); if (!v) return;
+    v.learned = !v.learned; v.u = Date.now(); cloud.set("vocab", v); persist();
+    if (ui.filter === "all") { const el = $(`#words [data-id="${CSS.escape(v.id)}"]`); if (el) el.innerHTML = itemInner(v); renderStats(); } else renderList();
+    renderDetail();
+  });
+  $("#btnEdit").addEventListener("click", () => { const v = current(); if (v) wordDialog(v); });
+  $("#btnDelete").addEventListener("click", async () => {
+    const v = current(); if (!v) return;
+    if (!(await confirmBox("Hapus Kata", `Hapus '${v.word}' dari daftar?`, "Hapus"))) return;
+    cloud.del("vocab", v.id);
+    state.vocab = state.vocab.filter(x => x.id !== v.id);
+    ui.sel = state.vocab[0]?.id ?? null; persist(); renderList(); renderDetail();
+    if (!ui.sel) document.body.classList.remove("detail-open");
+  });
+  $("#btnAdd").addEventListener("click", () => wordDialog(null));
+
+  function wordDialog(edit) {
+    openModal((d, close) => {
+      d.innerHTML = `
+        <h3>${edit ? "Edit Kosakata Turki" : "Tambah Kata Bahasa Turki"}</h3>
+        <p class="sub">Isi kata baru, arti, contoh kalimat, dan catatan opsional.</p>
+        <label class="field"><span>Kata baru (Bahasa Turki) *</span><input type="text" id="fWord" placeholder="Contoh: Günaydın" autocomplete="off"></label>
+        <div class="chars"><small>Huruf Turki:</small>${TR.map(c => `<button type="button" data-ch="${c}">${c}</button>`).join("")}</div>
+        <label class="field"><span>Artinya (Bahasa Indonesia) *</span><input type="text" id="fMeaning" placeholder="Contoh: Selamat pagi" autocomplete="off"></label>
+        <label class="field"><span>Contoh kalimat</span><textarea id="fExample" rows="2"></textarea></label>
+        <label class="field"><span>Catatan kata (tata bahasa / konteks)</span><textarea id="fNote" rows="3"></textarea></label>
+        <label class="switch"><input type="checkbox" id="fLearned"> Sudah saya hafal</label>
+        <p class="err" id="fErr"></p>
+        <div class="dlg-actions"><button class="btn" data-x="no" type="button">Batal</button><button class="btn primary" data-x="ok" type="button">Simpan</button></div>`;
+      const f = { word: d.querySelector("#fWord"), meaning: d.querySelector("#fMeaning"), example: d.querySelector("#fExample"), note: d.querySelector("#fNote"), learned: d.querySelector("#fLearned") };
+      if (edit) { f.word.value = edit.word; f.meaning.value = edit.meaning; f.example.value = edit.example === "-" ? "" : edit.example; f.note.value = edit.note === "-" ? "" : edit.note; f.learned.checked = edit.learned; }
+      let last = f.word;
+      d.querySelectorAll("input[type=text], textarea").forEach(el => el.addEventListener("focus", () => { last = el; }));
+      d.querySelector(".chars").addEventListener("mousedown", e => e.preventDefault());
+      d.querySelector(".chars").addEventListener("click", e => {
+        const b = e.target.closest("button"); if (!b) return;
+        const s = last.selectionStart ?? last.value.length, en = last.selectionEnd ?? s;
+        last.value = last.value.slice(0, s) + b.dataset.ch + last.value.slice(en);
+        last.focus(); last.setSelectionRange(s + 1, s + 1);
+      });
+      d.querySelector('[data-x="no"]').onclick = close;
+      d.querySelector('[data-x="ok"]').onclick = () => {
+        const word = f.word.value.trim(), meaning = f.meaning.value.trim();
+        if (!word || !meaning) { d.querySelector("#fErr").textContent = "Mohon isi Kata Baru dan Artinya."; return; }
+        const data = { word, meaning, example: f.example.value.trim() || "-", note: f.note.value.trim() || "-", learned: f.learned.checked };
+        if (edit) Object.assign(edit, data);
+        else { const v = normVocab({ id: uid(), ...data }); state.vocab.unshift(v); ui.sel = v.id; }
+        if (!edit) ui.sel = state.vocab[0].id; else ui.sel = edit.id;
+        const sv = current(); if (sv) { sv.u = Date.now(); cloud.set("vocab", sv); }
+        persist(); renderList(); renderDetail(); close();
+        const el = $(`#words [data-id="${CSS.escape(ui.sel)}"]`); if (el) el.scrollIntoView({ block: "nearest" });
+      };
+    });
+  }
+
+  const noteById = id => state.notes.find(n => n.id === id) || null;
+  const noteSub = n => { const t = htmlToText(n.html).split("\n").map(s => s.replace(/^•\s*/, "").trim()).find(Boolean); return (t ? short(t, 30) : "Catatan kosong") + "  ·  " + (n.updated_at || "").slice(0, 10); };
+  function renderNotes() {
+    $("#noteList").innerHTML = state.notes.map(n => `<button type="button" class="note-card${n.id === ui.noteId ? " sel" : ""}" data-id="${esc(n.id)}"><b>${esc(short(n.title, 28) || "Tanpa judul")}</b><span>${esc(noteSub(n))}</span></button>`).join("");
+  }
+  function setStatus(busy, text) { const s = $("#saveStatus"); s.textContent = text; s.classList.toggle("busy", busy); }
+  function commitNote() {
+    const n = noteById(ui.noteId); if (!n || !ui.dirty) return;
+    n.title = $("#noteTitle").value.trim() || "Tanpa judul";
+    n.html = sanitize($("#editor").innerHTML);
+    n.updated_at = now(); n.u = Date.now(); cloud.set("notes", n);
+    ui.dirty = false; persist();
+  }
+  function saveNow() {
+    clearTimeout(ui.saveTimer); commitNote();
+    const n = noteById(ui.noteId);
+    if (n) { const c = $(`#noteList [data-id="${CSS.escape(n.id)}"]`); if (c) { c.querySelector("b").textContent = short(n.title, 28) || "Tanpa judul"; c.querySelector("span").textContent = noteSub(n); } }
+    setStatus(false, storageOk ? "Tersimpan otomatis" : "Belum tersimpan (penyimpanan browser mati)");
+  }
+  function markDirty() { ui.dirty = true; setStatus(true, "Menyimpan..."); clearTimeout(ui.saveTimer); ui.saveTimer = setTimeout(saveNow, 600); }
+  function openNote(id) {
+    if (id === ui.noteId) return;
+    if (ui.noteId) saveNow();
+    const old = ui.noteId; ui.noteId = id;
+    const list = $("#noteList");
+    const o = old && list.querySelector(`[data-id="${CSS.escape(old)}"]`); if (o) o.classList.remove("sel");
+    const c = list.querySelector(`[data-id="${CSS.escape(id)}"]`); if (c) c.classList.add("sel");
+    const n = noteById(id); if (n) loadEditor(n);
+  }
+  function loadEditor(n) { $("#noteTitle").value = n.title; $("#editor").innerHTML = n.html; ui.dirty = false; refreshTools(); }
+  $("#noteList").addEventListener("click", e => { const c = e.target.closest(".note-card"); if (c) openNote(c.dataset.id); });
+  $("#btnNewNote").addEventListener("click", () => {
+    if (ui.noteId) saveNow();
+    const n = normNote({ id: uid(), title: "Catatan Baru", html: "", c: Date.now(), u: Date.now() });
+    state.notes.unshift(n); cloud.set("notes", n); ui.noteId = null; persist(); renderNotes(); openNote(n.id);
+    const t = $("#noteTitle"); t.focus(); t.select();
+  });
+  $("#btnDelNote").addEventListener("click", async () => {
+    const n = noteById(ui.noteId); if (!n) return;
+    if (!(await confirmBox("Hapus Catatan", `Hapus catatan '${n.title || "Tanpa judul"}'?`, "Hapus"))) return;
+    clearTimeout(ui.saveTimer); ui.dirty = false;
+    cloud.del("notes", n.id);
+    state.notes = state.notes.filter(x => x.id !== n.id);
+    if (!state.notes.length) { const nn = normNote({ id: uid(), title: "Catatan Baru", html: "", c: Date.now(), u: Date.now() }); state.notes.push(nn); cloud.set("notes", nn); }
+    ui.noteId = null; persist(); renderNotes(); openNote(state.notes[0].id);
+  });
+  $("#btnSaveNote").addEventListener("click", () => { ui.dirty = true; saveNow(); });
+  $("#noteTitle").addEventListener("input", () => {
+    const c = $(`#noteList [data-id="${CSS.escape(ui.noteId)}"] b`); if (c) c.textContent = short($("#noteTitle").value, 28) || "Tanpa judul";
+    markDirty();
+  });
+
+  const ed = $("#editor");
+  ed.addEventListener("input", markDirty);
+  ed.addEventListener("paste", e => {
+    e.preventDefault();
+    const t = (e.clipboardData || window.clipboardData)?.getData("text/plain") || "";
+    document.execCommand("insertText", false, t);
+  });
+  function selInEditor() { const s = getSelection(); return s && s.rangeCount && ed.contains(s.anchorNode) ? s : null; }
+  function hintStatus(msg) { setStatus(true, msg); setTimeout(() => { if ($("#saveStatus").textContent === msg) setStatus(false, "Tersimpan otomatis"); }, 1600); }
+  const HL = "#FBBF24";
+  const HL_SEL = '[style*="251, 191, 36"]';
+  const isHl = () => {
+    const s = selInEditor(); if (!s) return false;
+    const r = s.getRangeAt(0); let root = r.commonAncestorContainer; if (root.nodeType !== 1) root = root.parentNode;
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT); let any = false;
+    while (w.nextNode()) {
+      const n = w.currentNode; if (!r.intersectsNode(n) || !n.nodeValue.trim()) continue;
+      any = true; if (!n.parentElement.closest(HL_SEL)) return false;
+    }
+    return any;
+  };
+  function toggleHighlight() {
+    ed.focus(); const s = selInEditor(); if (!s) { hintStatus("Blok teks dulu"); return; }
+    if (s.isCollapsed) { try { s.modify("move", "backward", "word"); s.modify("extend", "forward", "word"); } catch (e) { /* abaikan */ } }
+    if (s.isCollapsed || !s.toString().trim()) { hintStatus("Blok teks dulu"); return; }
+    const off = isHl();
+    document.execCommand("styleWithCSS", false, true);
+    document.execCommand("hiliteColor", false, off ? "transparent" : HL);
+    document.execCommand("styleWithCSS", false, false);
+    afterFormat();
+  }
+  function run(c) {
+    ed.focus();
+    if (c === "highlight") return toggleHighlight();
+    if (c === "heading") { const cur = String(document.queryCommandValue("formatBlock")).toLowerCase(); document.execCommand("formatBlock", false, cur === "h3" ? "div" : "h3"); }
+    else if (c === "list") document.execCommand("insertUnorderedList");
+    else if (c === "clear") {
+      document.execCommand("removeFormat");
+      if (isHl()) { document.execCommand("styleWithCSS", false, true); document.execCommand("hiliteColor", false, "transparent"); document.execCommand("styleWithCSS", false, false); }
+      document.execCommand("formatBlock", false, "div");
+    } else document.execCommand(c);
+    afterFormat();
+  }
+  function afterFormat() { markDirty(); refreshTools(); }
+  function refreshTools() {
+    if (ui.view !== "notes") return;
+    const s = selInEditor(); const on = (c, v) => { try { return !!s && document.queryCommandState(c) === (v ?? true); } catch (e) { return false; } };
+    const set = (c, v) => { const b = $(`#toolbar [data-c="${c}"]`); if (b) b.classList.toggle("on", !!v); };
+    set("bold", on("bold")); set("italic", on("italic")); set("underline", on("underline")); set("list", on("insertUnorderedList"));
+    set("heading", !!s && String(document.queryCommandValue("formatBlock")).toLowerCase() === "h3");
+    set("highlight", !!s && isHl());
+  }
+  $("#toolbar").addEventListener("mousedown", e => { if (e.target.closest(".tb")) e.preventDefault(); });
+  $("#toolbar").addEventListener("click", e => { const b = e.target.closest(".tb"); if (b) run(b.dataset.c); });
+  document.addEventListener("selectionchange", refreshTools);
+  try { document.execCommand("styleWithCSS", false, false); } catch (e) { /* abaikan */ }
+
+  $("#btnBackup").addEventListener("click", () => {
+    if (ui.noteId) saveNow();
+    openModal((d, close) => {
+      const json = JSON.stringify(exportData(), null, 2);
+      d.innerHTML = `
+        <h3>Cadangan data</h3>
+        <p class="sub" id="bkTip"></p>
+        <p class="sub">Salin teks di bawah untuk memindahkan data secara manual, atau tempel di sini untuk memulihkan.</p>
+        <label class="field"><span>Salin data saat ini</span><textarea class="mono" id="bkOut" readonly rows="5"></textarea></label>
+        <div class="dlg-actions" style="margin-top:0"><button class="btn sm" id="bkCopy" type="button">Salin ke clipboard</button></div>
+        <hr>
+        <label class="field"><span>Pulihkan dari cadangan (tempel teks atau pilih file .json)</span><textarea class="mono" id="bkIn" rows="5" placeholder='{"vocab": [...], "notes": [...]}'></textarea></label>
+        <input type="file" id="bkFile" accept=".json,application/json,text/plain">
+        <p class="err" id="bkErr"></p>
+        <div class="dlg-actions"><button class="btn" data-x="no" type="button">Tutup</button><button class="btn primary" id="bkLoad" type="button">Ganti data dengan cadangan</button></div>`;
+      d.querySelector("#bkTip").textContent = cloud.tip;
+      const out = d.querySelector("#bkOut"); out.value = json;
+      d.querySelector("#bkCopy").onclick = async () => {
+        try { await navigator.clipboard.writeText(json); d.querySelector("#bkCopy").textContent = "Tersalin"; }
+        catch (e) { out.focus(); out.select(); d.querySelector("#bkCopy").textContent = "Teks terpilih, tekan Ctrl+C"; }
+      };
+      d.querySelector("#bkFile").onchange = ev => { const file = ev.target.files[0]; if (!file) return; const fr = new FileReader(); fr.onload = () => { d.querySelector("#bkIn").value = String(fr.result || ""); }; fr.readAsText(file); };
+      d.querySelector('[data-x="no"]').onclick = close;
+      d.querySelector("#bkLoad").onclick = () => {
+        const err = d.querySelector("#bkErr");
+        try {
+          const data = normalize(JSON.parse(d.querySelector("#bkIn").value));
+          if (!data.vocab.length && !data.notes.length) throw new Error("kosong");
+          if (!data.notes.length) data.notes = state.notes;
+          const old = state; state = data; ui.sel = state.vocab[0]?.id ?? null; ui.noteId = null; ui.dirty = false;
+          cloud.replaceAll(old, state);
+          persist(); renderList(); renderDetail(); renderNotes(); if (state.notes[0]) openNote(state.notes[0].id); close();
+        } catch (e) { err.textContent = "Teks cadangan tidak valid. Pastikan seluruh isi JSON tertempel."; }
+      };
+    });
+  });
+
+  function setView(v, fromHash) {
+    if (ui.view === "notes" && v !== "notes" && ui.noteId) saveNow();
+    ui.view = v;
+    const notes = v === "notes";
+    $("#viewVocab").hidden = notes; $("#viewNotes").hidden = !notes;
+    $("#btnView").textContent = notes ? "Kosakata" : "Catatan";
+    $("#btnAdd").disabled = notes;
+    document.body.classList.remove("detail-open");
+    if (!fromHash) { const h = notes ? "catatan" : "kosakata"; if (location.hash !== "#" + h) location.hash = h; }
+    if (notes) { if (!ui.noteId) openNote(state.notes[0].id); refreshTools(); }
+  }
+  $("#btnView").addEventListener("click", () => setView(ui.view === "notes" ? "vocab" : "notes"));
+  $("#btnBack").addEventListener("click", () => setView("vocab"));
+  const fromHash = () => setView(location.hash === "#catatan" ? "notes" : "vocab", true);
+  addEventListener("hashchange", fromHash);
+  document.addEventListener("keydown", e => { if (e.key === "Escape") document.body.classList.remove("detail-open"); });
+  addEventListener("pagehide", () => { if (ui.noteId) saveNow(); });
+
+  const isSeed = id => /^(seed-\d+|note-1)$/.test(id);
+  const TIPS = {
+    local: "Data tersimpan di browser ini. Klik 'Masuk dengan Google' agar tersinkron ke akun Google pribadimu di perangkat lain.",
+    syncing: "Sedang menyinkronkan data ke akun Google kamu...",
+    ok: "Data pribadimu tersimpan di akun Google dan ikut muncul di perangkat lain yang login dengan akun yang sama."
+  };
+
+  const cloud = {
+    auth: null, db: null, provider: null, user: null,
+    baseDoc: null, vcol: null, ncol: null,
+    unsubV: null, unsubN: null,
+    ready: false, busy: false, wrote: false, timer: 0,
+    q: new Map(), mode: "local", tip: TIPS.local,
+
+    setMode(m, tip) {
+      this.mode = m; this.tip = tip || TIPS[m] || TIPS.local;
+      const el = $("#syncPill"); if (!el) return;
+      el.dataset.mode = m; el.title = this.tip;
+      el.textContent = { local: "Hanya di perangkat ini", syncing: "Menyinkronkan…", ok: "Tersinkron Google", error: "Sinkron tertunda" }[m];
+    },
+
+    updateAuthUi(user) {
+      const chip = $("#userChip");
+      const btn = $("#btnGoogleAuth");
+      if (user) {
+        chip.hidden = false;
+        $("#userName").textContent = user.displayName || user.email || "Akun Google";
+        if (user.photoURL) {
+          $("#userAvatar").src = user.photoURL;
+          $("#userAvatar").hidden = false;
+        } else {
+          $("#userAvatar").hidden = true;
+        }
+        btn.textContent = "Keluar";
+      } else {
+        chip.hidden = true;
+        $("#userAvatar").removeAttribute("src");
+        $("#userName").textContent = "";
+        btn.textContent = "Masuk dengan Google";
+      }
+    },
+
+    detachListeners() {
+      if (this.unsubV) { this.unsubV(); this.unsubV = null; }
+      if (this.unsubN) { this.unsubN(); this.unsubN = null; }
+      this.ready = false;
+      this.user = null;
+      this.baseDoc = null;
+      this.vcol = null;
+      this.ncol = null;
+      this.q.clear();
+    },
+
+    async init() {
+      this.setMode("local");
+      $("#btnGoogleAuth").addEventListener("click", () => this.toggleSignIn());
+
+      try {
+        const app = initializeApp(FIREBASE_CONFIG);
+        this.auth = getAuth(app);
+        this.db = getFirestore(app);
+        this.provider = new GoogleAuthProvider();
+        this.provider.setCustomParameters({ prompt: "select_account" });
+
+        onAuthStateChanged(this.auth, async (user) => {
+          this.detachListeners();
+          this.updateAuthUi(user);
+          if (!user) {
+            this.setMode("local");
+            return;
+          }
+          await this.attachUser(user);
+        });
+      } catch (e) {
+        this.fail(e);
+      }
+    },
+
+    async toggleSignIn() {
+      if (!this.auth) return;
+      try {
+        if (this.user) {
+          if (ui.noteId) saveNow();
+          await signOut(this.auth);
+        } else {
+          this.setMode("syncing");
+          await signInWithPopup(this.auth, this.provider);
+        }
+      } catch (e) {
+        if (e?.code !== "auth/popup-closed-by-user") {
+          this.fail(e);
+        } else {
+          this.setMode(this.user ? "ok" : "local");
+        }
+      }
+    },
+
+    async attachUser(user) {
+      this.user = user;
+      this.setMode("syncing");
+      try {
+        this.baseDoc = doc(this.db, "users", user.uid, "kamusku", "meta");
+        this.vcol = collection(this.db, "users", user.uid, "vocab");
+        this.ncol = collection(this.db, "users", user.uid, "notes");
+
+        const [vsSnap, nsSnap, metaSnap] = await Promise.all([
+          getDocs(this.vcol),
+          getDocs(this.ncol),
+          getDoc(this.baseDoc)
+        ]);
+
+        const vsDocs = vsSnap.docs.map(d => ({ id: d.id, data: () => d.data() }));
+        const nsDocs = nsSnap.docs.map(d => ({ id: d.id, data: () => d.data() }));
+        this.merge({ docs: vsDocs }, { docs: nsDocs }, metaSnap.exists());
+
+        this.ready = true;
+
+        this.unsubV = onSnapshot(this.vcol, snap => {
+          if (!this.ready) return;
+          this.remote("vocab", snap);
+        }, err => this.fail(err));
+
+        this.unsubN = onSnapshot(this.ncol, snap => {
+          if (!this.ready) return;
+          this.remote("notes", snap);
+        }, err => this.fail(err));
+
+        if (this.q.size) this.sched(0);
+        else this.setMode("ok");
+      } catch (e) {
+        this.fail(e);
+      }
+    },
+
+    merge(vs, ns, metaExists) {
+      const cV = new Map(vs.docs.map(d => [d.id, d.data()])), cN = new Map(ns.docs.map(d => [d.id, d.data()]));
+      const fresh = !metaExists && !cV.size && !cN.size;
+      let changed = false;
+      const run = (kind, list, cmap, norm) => {
+        for (const [id, c] of cmap) {
+          const l = list.find(x => x.id === id);
+          if (!l) { list.push(norm(c)); changed = true; }
+          else if ((c.u || 0) > (l.u || 0)) { Object.assign(l, norm(c)); changed = true; }
+          else if ((c.u || 0) < (l.u || 0)) this.set(kind, l);
+        }
+        for (const l of [...list]) if (!cmap.has(l.id)) {
+          if (!fresh && isSeed(l.id) && !l.u) { list.splice(list.indexOf(l), 1); changed = true; }
+          else { if (!l.u && !isSeed(l.id)) l.u = Date.now(); this.set(kind, l); }
+        }
+      };
+      run("vocab", state.vocab, cV, normVocab); run("notes", state.notes, cN, normNote);
+      if (!state.notes.length) {
+        const n = normNote({ id: uid(), title: "Catatan Belajar", html: "", c: Date.now(), u: Date.now() });
+        state.notes.push(n); this.set("notes", n);
+      }
+      if (!metaExists) { this.q.set("meta", { op: "meta" }); }
+      sortAll(); if (changed) { afterRemote(true, true); }
+    },
+
+    remote(kind, snap) {
+      if (!this.ready) return;
+      const list = kind === "vocab" ? state.vocab : state.notes, norm = kind === "vocab" ? normVocab : normNote;
+      let changed = false, currentChanged = false;
+      for (const ch of snap.docChanges()) {
+        const id = ch.doc.id, key = kind + ":" + id, i = list.findIndex(x => x.id === id);
+        if (ch.type === "removed") {
+          if (i >= 0 && !this.q.has(key)) { list.splice(i, 1); changed = true; if (kind === "notes" && id === ui.noteId) currentChanged = true; }
+          continue;
+        }
+        const c = ch.doc.data(); if (!c) continue;
+        if (i < 0) { list.push(norm(c)); changed = true; }
+        else if ((c.u || 0) > (list[i].u || 0) && !this.q.has(key) && !(kind === "notes" && id === ui.noteId && ui.dirty)) {
+          Object.assign(list[i], norm(c)); changed = true; if (kind === "notes" && id === ui.noteId) currentChanged = true;
+        }
+      }
+      if (changed) { sortAll(); kind === "vocab" ? afterRemote(true, false) : afterRemote(false, true, currentChanged); }
+    },
+
+    set(kind, item) { if (!this.baseDoc) return; this.q.set(kind + ":" + item.id, { op: "set", kind, id: item.id }); this.sched(); },
+    del(kind, id) { if (!this.baseDoc) return; this.q.set(kind + ":" + id, { op: "del", kind, id }); this.sched(); },
+    replaceAll(old, next) {
+      if (!this.baseDoc) return;
+      for (const kind of ["vocab", "notes"]) {
+        const keep = new Set(next[kind].map(x => x.id));
+        next[kind].forEach(x => { x.u = Date.now(); this.set(kind, x); });
+        old[kind].forEach(x => { if (!keep.has(x.id)) this.del(kind, x.id); });
+      }
+    },
+    sched(ms = 700) {
+      clearTimeout(this.timer); this.timer = setTimeout(() => this.flush(), ms);
+      if (this.mode !== "error" && this.ready) this.setMode("syncing");
+    },
+    body(kind, it) {
+      return kind === "vocab"
+        ? { id: it.id, word: it.word, meaning: it.meaning, example: it.example, note: it.note, learned: !!it.learned, created_at: it.created_at, u: it.u || 0 }
+        : { id: it.id, title: it.title, html: it.html, updated_at: it.updated_at, u: it.u || 0, c: it.c || 0 };
+    },
+    async flush() {
+      if (!this.ready || this.busy) return;
+      this.busy = true; let wait = 0, key = null;
+      try {
+        for (const [k, job] of [...this.q]) {
+          key = k;
+          if (job.op === "meta") {
+            await setDoc(this.baseDoc, { app: "kamusku", email: this.user?.email || "", updated: Date.now() }, { merge: true });
+          } else {
+            const col = job.kind === "vocab" ? this.vcol : this.ncol;
+            if (job.op === "del") await deleteDoc(doc(col, job.id));
+            else {
+              const it = (job.kind === "vocab" ? state.vocab : state.notes).find(x => x.id === job.id);
+              if (it) await setDoc(doc(col, job.id), this.body(job.kind, it));
+            }
+          }
+          this.wrote = true;
+          if (this.q.get(k) === job) this.q.delete(k);
+          await new Promise(r => setTimeout(r, 30));
+        }
+        this.setMode("ok");
+      } catch (e) { wait = this.fail(e, key); }
+      finally { this.busy = false; if (this.ready && this.q.size) this.sched(wait || 700); }
+    },
+    fail(e, key) {
+      const code = e && e.code;
+      if (code === "unavailable" || code === "resource-exhausted") {
+        this.setMode("error", "Penyimpanan akun Google sedang sibuk. Mencoba lagi otomatis; data tetap aman di perangkat ini.");
+        return 3000 + Math.random() * 3000;
+      }
+      if (code === "permission-denied") {
+        this.setMode("error", "Izin Firestore ditolak. Periksa aturan keamanan Firestore untuk path users/{uid}.");
+        return 0;
+      }
+      if (key) this.q.delete(key);
+      this.setMode("error", "Gagal menyinkronkan sebagian data ke akun Google. Data tetap aman di perangkat ini.");
+      return 700;
+    }
+  };
+
+  function sortAll() {
+    state.vocab.sort((a, b) => (b.created_at || "").localeCompare(a.created_at || "") || (isSeed(a.id) - isSeed(b.id)));
+    state.notes.sort((a, b) => (b.c || 0) - (a.c || 0));
+  }
+  function afterRemote(vocab, notes, currentNoteChanged) {
+    persist();
+    if (vocab) { if (!current()) ui.sel = state.vocab[0]?.id ?? null; renderList(); renderDetail(); }
+    if (notes) {
+      if (!noteById(ui.noteId)) { ui.noteId = null; if (ui.view === "notes") { renderNotes(); openNote(state.notes[0].id); return; } }
+      renderNotes();
+      if (ui.view === "notes" && ui.noteId) {
+        const cur = noteById(ui.noteId);
+        if (cur && currentNoteChanged && !ui.dirty) loadEditor(cur);
+        const el = $(`#noteList [data-id="${CSS.escape(ui.noteId)}"]`);
+        if (el) el.classList.add("sel");
+      }
+    }
+  }
+
+  state = load();
+  ui.sel = state.vocab[0]?.id ?? null;
+  persist();
+  renderList(); renderDetail(); renderNotes();
+  fromHash();
+  cloud.init();
+</script>
+
+</body>
+</html>
